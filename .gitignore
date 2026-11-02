@@ -1,0 +1,9 @@
+.Rhistory
+.Rproj.user/
+.Renviron
+.env
+.DS_Store
+node_modules/
+dist/
+.astro/
+pr_body.md

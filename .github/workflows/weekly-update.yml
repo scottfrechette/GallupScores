@@ -1,0 +1,69 @@
+name: weekly-update
+
+on:
+  schedule:
+    - cron: "0 11 * * 2" # Tuesdays 11:00 UTC (6-7am Central). Cron is UTC only.
+  workflow_dispatch: # lets you run it manually from the Actions tab
+
+permissions:
+  contents: write
+  pull-requests: write # needed to open the commentary review PR
+
+concurrency: weekly-update
+
+jobs:
+  update:
+    runs-on: ubuntu-latest
+    timeout-minutes: 90
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: r-lib/actions/setup-r@v2
+        with:
+          use-public-rspm: true # prebuilt Linux binaries: much faster installs
+
+      - uses: r-lib/actions/setup-r-dependencies@v2
+        with:
+          cache-version: 1 # bump to bust the cache
+
+      - name: Run pipeline
+        run: Rscript pipeline/weekly.R
+
+      # Data goes straight to master: it is deterministic, no review needed
+      - name: Commit results
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add data/
+          if git diff --cached --quiet; then
+            echo "No changes to commit"
+          else
+            git commit -m "Weekly data update $(date -u +%F)"
+            git push
+          fi
+
+      # Commentary is drafted by the Claude API and held for review in a PR
+      - name: Draft commentary
+        env:
+          ANTHROPIC_API_KEY: ${{ secrets.ANTHROPIC_API_KEY }}
+        run: Rscript pipeline/commentary.R
+
+      # If this step fails, the commentary PR still opens without The Read
+      - name: Draft The Read
+        continue-on-error: true
+        env:
+          ANTHROPIC_API_KEY: ${{ secrets.ANTHROPIC_API_KEY }}
+        run: Rscript pipeline/read.R
+
+      - name: Open PR for review
+        uses: peter-evans/create-pull-request@v7
+        with:
+          add-paths: |
+            data/**/commentary.json
+            data/**/commentary.md
+            data/**/read.json
+          branch: commentary-draft
+          delete-branch: true
+          commit-message: "Draft commentary"
+          title: "Draft weekly commentary"
+          body-path: pr_body.md

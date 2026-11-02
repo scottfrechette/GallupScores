@@ -6,14 +6,11 @@ License: MIT
 Imports:
     tidyverse,
     lubridate,
-    RSQLite,
-    DBI,
     here,
     jsonlite,
     httr2,
     rstanarm,
     scales,
-    tidybayes,
     ffsched,
     fvoa
 Remotes:

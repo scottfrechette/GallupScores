@@ -4,10 +4,9 @@
 suppressPackageStartupMessages(library(tidyverse))
 suppressPackageStartupMessages(library(lubridate))
 suppressPackageStartupMessages(library(fvoa))
-suppressPackageStartupMessages(library(RSQLite))
-suppressPackageStartupMessages(library(DBI))
 
 source(here::here("pipeline", "config.R"))  # league settings from league.json
+source(here::here("pipeline", "store.R"))   # JSON storage for season data
 
 # Use all available cores for rstanarm sampling
 options(mc.cores = parallel::detectCores())
@@ -30,80 +29,63 @@ if (weeks_played < 1 || weeks_played > cfg$last_data_week) {
 
 # Scrape Data -------------------------------------------------------------
 
-clt_con <- dbConnect(SQLite(), here::here("data", "league.sqlite"))
-
-clt_team_tmp <- get_team(weeks_played, 'yahoo', leagueID = cfg$yahoo_league_id, season = current_season) %>% 
+gallup_team_tmp <- get_team(weeks_played, 'yahoo', leagueID = cfg$yahoo_league_id, season = current_season) %>% 
   mutate(season = current_season, .before = 1)
 
-if(exists("clt_team_tmp")) {
-  
-  # CHANGED: dbExecute instead of dbSendQuery (no dangling result set)
-  dbExecute(clt_con, str_glue("DELETE from teams where week == {weeks_played} and season == {current_season}"))
-  
-  dbWriteTable(clt_con,
-               "teams", clt_team_tmp,
-               overwrite = FALSE, append = TRUE)
-  
-  rm(clt_team_tmp)
-  
-}
+# One file per week (data/{season}/teams/week-NN.json); a re-run replaces the week
+write_teams_week(gallup_team_tmp, current_season, weeks_played)
+rm(gallup_team_tmp)
 
 # Sys.sleep(60)
 
-clt_wp_tmp <- get_win_prob(current_week, leagueID = cfg$yahoo_league_id) %>% 
+gallup_wp_tmp <- get_win_prob(current_week, leagueID = cfg$yahoo_league_id) %>% 
   mutate(season = current_season,
          week = current_week, .before = 1)
 
 # Collect Results ---------------------------------------------------------
 
-clt_owners <- tbl(clt_con, 'owners') %>% 
-  filter(season == current_season) %>% 
-  select(teamID, team) %>% 
-  collect()
-clt_schedule <- tbl(clt_con, "schedule") %>% 
-  filter(season == current_season) %>% 
-  collect() %>% 
-  left_join(clt_owners, by = "teamID") %>% 
-  left_join(select(clt_owners, opponent = team, opponentID = teamID),
+gallup_owners <- read_owners(current_season) %>% 
+  select(teamID, team)
+gallup_schedule <- read_schedule(current_season) %>% 
+  left_join(gallup_owners, by = "teamID") %>% 
+  left_join(select(gallup_owners, opponent = team, opponentID = teamID),
             by = "opponentID") %>% 
   select(season, week, team, opponent)
-clt_team <- tbl(clt_con, "teams") %>% 
-  filter(season == current_season) %>% 
-  collect() %>% 
-  left_join(clt_owners, by = "teamID") %>% 
+gallup_team <- read_teams(current_season) %>% 
+  left_join(gallup_owners, by = "teamID") %>% 
   select(week, team, score:points)
-clt_scores <- extract_scores(clt_team)
-clt_proj <- extract_projections(clt_team)
-clt_wp <- clt_wp_tmp %>%
-  left_join(clt_owners, by = "teamID") %>% 
+gallup_scores <- extract_scores(gallup_team)
+gallup_proj <- extract_projections(gallup_team)
+gallup_wp <- gallup_wp_tmp %>%
+  left_join(gallup_owners, by = "teamID") %>% 
   select(week, team, wp) %>% 
   mutate(wp = scales::percent(wp, accuracy = 1))
 
-if (max(clt_scores$week) != weeks_played) {stop("Did not collect previous week scores")}
+if (max(gallup_scores$week) != weeks_played) {stop("Did not collect previous week scores")}
 
 # Fit Model ---------------------------------------------------------------
 
-clt_fit_season <- fit_team_season(clt_scores)
-clt_fit <- slice_tail(clt_fit_season, n = 1)$model[[1]]
-clt_draws <- fvoa:::extract_team_draws(clt_fit)
+gallup_fit_season <- fit_team_season(gallup_scores)
+gallup_fit <- slice_tail(gallup_fit_season, n = 1)$model[[1]]
+gallup_draws <- fvoa:::extract_team_draws(gallup_fit)
 
 # Run Simulations ---------------------------------------------------------
 
 set.seed(42)
-clt_simulated_scores <- simulate_season_scores(clt_schedule, clt_fit)
-clt_simulated_standings <- simulate_season_standings(clt_simulated_scores)
-clt_simulated_final_standings <- simulate_final_standings(clt_simulated_standings)
+gallup_simulated_scores <- simulate_season_scores(gallup_schedule, gallup_fit)
+gallup_simulated_standings <- simulate_season_standings(gallup_simulated_scores)
+gallup_simulated_final_standings <- simulate_final_standings(gallup_simulated_standings)
 set.seed(42)
-clt_simulated_records <- simulate_final_standings_season(clt_fit_season, clt_schedule)
+gallup_simulated_records <- simulate_final_standings_season(gallup_fit_season, gallup_schedule)
 
 # Run Calculations --------------------------------------------------------
 
-clt_current_matchups <- compare_current_matchups(clt_schedule, clt_fit, clt_wp, quality = T, clt_simulated_standings) %>%
+gallup_current_matchups <- compare_current_matchups(gallup_schedule, gallup_fit, gallup_wp, quality = T, gallup_simulated_standings) %>%
   select(-Yahoo)
 # compare_playoff_teams() was removed here: it hardcoded this league's team names
 # and its result was not saved or used
-clt_fvoa_season <- calculate_fvoa_season(clt_fit_season)
-clt_rankings <- calculate_rankings(clt_schedule, clt_fit) %>% 
+gallup_fvoa_season <- calculate_fvoa_season(gallup_fit_season)
+gallup_rankings <- calculate_rankings(gallup_schedule, gallup_fit) %>% 
   set_names("Team", "PF", "PA", 
             "Record", "WP", "Yahoo Rank", 
             "FVOA", "FVOA Rank",
@@ -112,18 +94,18 @@ clt_rankings <- calculate_rankings(clt_schedule, clt_fit) %>%
             "SOS Remaining Favored", "SOS Remaining", "SOS Remaining Rank",
             "SOR", "SOR Rank",
             "Colley Rating", "Colley Rank")
-clt_lines <- compare_league(clt_fit) %>% 
+gallup_lines <- compare_league(gallup_fit) %>% 
   fvoa:::spread_league(.output = "spread") %>% 
   rename(Team = team)
-clt_lineup_eval <- clt_team %>% 
+gallup_lineup_eval <- gallup_team %>% 
   evaluate_lineup(flex = cfg$lineup_flex) %>% 
   plot_roster_skills()
-clt_model_eval <- evaluate_model(clt_fit_season)
-clt_playoff_leverage <- plot_playoff_leverage(clt_simulated_standings)
-clt_schedule_luck <- plot_schedule_luck(clt_schedule, clt_scores, clt_owners, sims = 1000)
-clt_sim_standings_df <- crossing(team = unique(clt_scores$team), 
+gallup_model_eval <- evaluate_model(gallup_fit_season)
+gallup_playoff_leverage <- plot_playoff_leverage(gallup_simulated_standings)
+gallup_schedule_luck <- plot_schedule_luck(gallup_schedule, gallup_scores, gallup_owners, sims = 1000)
+gallup_sim_standings_df <- crossing(team = unique(gallup_scores$team), 
                                  rank = seq_len(cfg$num_teams)) %>% 
-  left_join(count(clt_simulated_standings, team, rank),
+  left_join(count(gallup_simulated_standings, team, rank),
             by = c("team", "rank")) %>% 
   replace_na(list(n = 0)) %>% 
   mutate(pct = n / sum(n),
@@ -138,5 +120,3 @@ clt_sim_standings_df <- crossing(team = unique(clt_scores$team),
 # JSON snapshots -> data/{season}/week-{NN}/
 source(here::here("pipeline", "export.R"))
 source(here::here("pipeline", "export_extra.R"))
-
-dbDisconnect(clt_con)

@@ -13,9 +13,9 @@ Weekly FVOA power rankings, season simulations, and AI-drafted commentary for a 
 ```
 league.json            every league-specific setting (name, Yahoo ID, team count, playoff spots, ...)
 DESCRIPTION            R dependencies for CI (not a real package)
-pipeline/              R scripts: weekly.R, export.R, export_extra.R, commentary.R, read.R, config.R, checks.R
+pipeline/              R scripts: weekly.R, export.R, export_extra.R, commentary.R, read.R, config.R, checks.R, store.R, seed.R, backfill.R
 prompts/               prompt.md, read_prompt.md, voice_examples.md
-data/                  league.sqlite (history) and the weekly JSON snapshots
+data/                  season files (owners, schedule, weekly team rosters) and the weekly JSON snapshots
 web/                   the Astro site
 .github/workflows/     weekly-update.yml
 ```
@@ -25,7 +25,7 @@ web/                   the Astro site
 1. Click **Use this template** on GitHub.
 2. Edit `league.json`. `season_week_offset` is the calendar week before week 1 and needs updating every August.
 3. Rewrite `prompts/voice_examples.md` in the new author's voice (the files in `prompts/` use `{{placeholders}}` filled from `league.json`).
-4. Create `data/league.sqlite` with the `owners`, `schedule`, and `teams` tables the pipeline reads.
+4. Run `Rscript pipeline/seed.R`. It writes the schedule from Yahoo, and on the first run it also writes `data/{season}/owners.csv` with the team IDs and blank names. Fill in the names and run it again to write `owners.json`. If the league is already underway, run `Rscript pipeline/backfill.R` once to load the weeks played so far. Repeat the seed step each August.
 5. In the repo settings, add the secret `ANTHROPIC_API_KEY`. Under Settings > Actions > General, give workflows read and write permission and allow them to create pull requests.
 6. Import the repo in Vercel: Root Directory `web`, turn on "Include source files outside of the Root Directory", and set the Ignored Build Step to `git diff --quiet HEAD^ HEAD -- . ../data ../league.json`.
 7. Set `site` in `web/astro.config.mjs`, and add the domain in Vercel.

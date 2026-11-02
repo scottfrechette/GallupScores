@@ -1,7 +1,7 @@
 # export_extra.R
 # source() this right after export.R in weekly.R. It reuses out_dir,
-# export_json() and weeks_played, and needs clt_simulated_records and
-# clt_schedule_luck from the pipeline.
+# export_json() and weeks_played, and needs gallup_simulated_records and
+# gallup_schedule_luck from the pipeline.
 #
 # UNTESTED: written from glimpse() output only. Run locally and check the JSON.
 
@@ -9,7 +9,7 @@ suppressPackageStartupMessages(library(dplyr))
 
 # Projections: Odds screen (wins, points) and My Team tiles -------------------
 
-history <- as_tibble(clt_simulated_records)
+history <- as_tibble(gallup_simulated_records)
 
 projections <- history |>
   filter(week == weeks_played) |>
@@ -25,20 +25,20 @@ projections <- history |>
   )
 
 if (nrow(projections) == 0) {
-  stop("clt_simulated_records has no rows for week ", weeks_played, call. = FALSE)
+  stop("gallup_simulated_records has no rows for week ", weeks_played, call. = FALSE)
 }
 
 export_json(projections, "projections", required = TRUE)
 export_json(history, "records_history")  # every week's projections, for trend charts
 
 # Schedule luck: "The Read" ---------------------------------------------------
-# clt_schedule_luck$data has one row per team x finishing rank, where pct is the
+# gallup_schedule_luck$data has one row per team x finishing rank, where pct is the
 # share of simulated random schedules that end with the team at that rank.
 # sim_rank is the single most common finish (the mode), which can sit well away
 # from the average when the distribution is wide, so it is NOT used for luck.
 # Instead, compare the whole distribution to the team's actual rank.
 
-luck_dist <- clt_schedule_luck$data |>
+luck_dist <- gallup_schedule_luck$data |>
   as_tibble() |>
   mutate(team = as.character(team))
 
@@ -65,14 +65,14 @@ export_json(schedule_luck, "schedule_luck", required = TRUE)
 export_json(luck_dist, "schedule_luck_dist")
 
 # Matchups: Week screen ---------------------------------------------------
-# clt_current_matchups describes the UPCOMING games (current_week is
+# gallup_current_matchups describes the UPCOMING games (current_week is
 # weeks_played + 1), so the site should label this "Week {week}", not the
 # week of the folder it sits in. Values arrive as strings ("58%", "-6.5",
 # "+100"), so convert them. "winner" is the listed side of each game; its FVOA
 # win probability can be under 50% (a pick'em), so don't call it the favorite
 # without checking.
 
-matchups <- clt_current_matchups |>
+matchups <- gallup_current_matchups |>
   as_tibble() |>
   transmute(
     week = current_week,
@@ -92,7 +92,7 @@ export_json(matchups, "matchups", required = TRUE)
 # Playoff leverage: "if you win, your odds go ..." ------------------------
 # Assumes these are for the upcoming game, like the matchups above.
 
-leverage <- clt_playoff_leverage$data |>
+leverage <- gallup_playoff_leverage$data |>
   as_tibble() |>
   transmute(
     Team = as.character(team),
@@ -107,10 +107,10 @@ export_json(leverage, "leverage", required = TRUE)
 # One row per team per week. The team page reads this for the "Weekly score"
 # and "FVOA" trend charts.
 
-trends <- as_tibble(clt_scores) |>
+trends <- as_tibble(gallup_scores) |>
   select(Team = team, week, score) |>
   full_join(
-    as_tibble(clt_fvoa_season) |> select(Team = team, week, fvoa),
+    as_tibble(gallup_fvoa_season) |> select(Team = team, week, fvoa),
     by = c("Team", "week")
   ) |>
   arrange(week, Team)
@@ -125,7 +125,7 @@ export_json(trends, "trends", required = TRUE)
 bench_labels <- cfg$bench_labels  # roster labels that mean "not started"
 
 build_bench <- function() {
-  rosters <- as_tibble(clt_team) |> mutate(points = coalesce(points, 0))
+  rosters <- as_tibble(gallup_team) |> mutate(points = coalesce(points, 0))
 
   # Sanity check: the starters' points should add up to the team score
   check <- rosters |>
@@ -137,7 +137,7 @@ build_bench <- function() {
          ". Update bench_labels to the ones that mean bench.", call. = FALSE)
   }
 
-  lineups <- as_tibble(evaluate_lineup(as_tibble(clt_team), flex = cfg$lineup_flex)) |>
+  lineups <- as_tibble(evaluate_lineup(as_tibble(gallup_team), flex = cfg$lineup_flex)) |>
     mutate(points_left = pmax(round(optimal - actual, 1), 0))
 
   weekly <- lineups |> select(Team = team, week, optimal, actual, points_left)
@@ -174,7 +174,7 @@ build_bench <- function() {
   export_json(bench, "bench")
   export_json(weekly, "bench_weekly")
   # Used only by the commentary scripts, to flag player names the model should not use
-  write_json(sort(unique(clt_team$player)), file.path(out_dir, "roster_names.json"))
+  write_json(sort(unique(gallup_team$player)), file.path(out_dir, "roster_names.json"))
 }
 
 tryCatch(

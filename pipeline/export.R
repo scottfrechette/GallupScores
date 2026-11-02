@@ -3,8 +3,8 @@
 # export_extra.R, which writes projections, schedule_luck, matchups and leverage.
 #
 # Needs these objects from the pipeline: current_season, weeks_played,
-# clt_rankings, clt_sim_standings_df, clt_lines, clt_fvoa_season,
-# clt_model_eval, clt_lineup_eval, clt_simulated_records.
+# gallup_rankings, gallup_sim_standings_df, gallup_lines, gallup_fvoa_season,
+# gallup_model_eval, gallup_lineup_eval, gallup_simulated_records.
 #
 # UNTESTED: written without access to fvoa's output structures. Run it locally
 # once and check the JSON before relying on it in CI.
@@ -41,14 +41,14 @@ export_json <- function(x, name, required = FALSE) {
 }
 
 # Core files: fail the run if any of these is missing
-export_json(clt_rankings,         "rankings",    required = TRUE)
-export_json(clt_sim_standings_df, "odds",        required = TRUE)  # finish-position odds only
-export_json(clt_lines,            "lines",       required = TRUE)
-export_json(clt_fvoa_season,      "fvoa_season", required = TRUE)
+export_json(gallup_rankings,         "rankings",    required = TRUE)
+export_json(gallup_sim_standings_df, "odds",        required = TRUE)  # finish-position odds only
+export_json(gallup_lines,            "lines",       required = TRUE)
+export_json(gallup_fvoa_season,      "fvoa_season", required = TRUE)
 
 # Secondary files: warn and continue
-export_json(clt_model_eval,       "model_eval")
-export_json(clt_lineup_eval,      "lineup_eval")
+export_json(gallup_model_eval,       "model_eval")
+export_json(gallup_lineup_eval,      "lineup_eval")
 
 # matchups, leverage, projections and schedule_luck are written by export_extra.R
 
@@ -69,14 +69,14 @@ write_json(
 
 # Facts for the commentary step -------------------------------------------
 
-# Playoff odds come from clt_simulated_records, the same source as
+# Playoff odds come from gallup_simulated_records, the same source as
 # projections.json, so every page and the commentary agree. It also holds every
 # earlier week, so the week-over-week change works without an old snapshot.
-odds_now <- clt_simulated_records |>
+odds_now <- gallup_simulated_records |>
   filter(week == weeks_played) |>
   select(Team = team, playoff_pct = playoffs)
 
-odds_prev <- clt_simulated_records |>
+odds_prev <- gallup_simulated_records |>
   filter(week == weeks_played - 1) |>
   select(Team = team, prev_playoff_pct = playoffs)
 
@@ -95,7 +95,7 @@ parse_win_pct <- function(rec) {
   }, numeric(1))
 }
 
-facts <- clt_rankings |>
+facts <- gallup_rankings |>
   select(Team, FVOA, fvoa_rank = `FVOA Rank`, yahoo_rank = `Yahoo Rank`,
          sor_rank = `SOR Rank`, sos_rank = `SOS Rank`,
          record = Record, pf = PF) |>

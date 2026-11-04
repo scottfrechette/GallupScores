@@ -2,7 +2,7 @@
  import tailwindcss from "@tailwindcss/vite";
 
  export default defineConfig({
-   site: "https://gallup-scores.vercel.app/",
+   site: "https://gallup-scores.scottfrechette.com",
    vite: {
      plugins: [tailwindcss()],
    },

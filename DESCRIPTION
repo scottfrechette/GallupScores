@@ -11,6 +11,7 @@ Imports:
     httr2,
     rstanarm,
     scales,
+    tidybayes,
     ffsched,
     fvoa
 Remotes:

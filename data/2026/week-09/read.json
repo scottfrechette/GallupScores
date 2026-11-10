@@ -1,0 +1,19 @@
+{
+  "season": 2026,
+  "week": 9,
+  "model": "claude-sonnet-5-5",
+  "generated_at": "2026-11-10T18:29:45Z",
+  "reads": {
+    "Jibreel": "Jibreel leads the standings at 8-1 with 61% playoff odds, which is thinner than that record suggests because FVOA ranks the team ninth. Scoring sits 5.2% below the league average, and 98% of random schedules would have left Jibreel ranked lower. A win over Scott as a 10-point underdog would lift the odds to 97%.",
+    "James": "James is the one contender whose record and numbers agree: 7-2, first in points scored, and second in both the standings and FVOA. Playoff odds are 84% despite a drop of 11 points this week. Beating Michael in a near pick'em pushes that to 97%, while a loss drops it to 70%.",
+    "Todd": "Todd is 6-3 and third in the standings, but FVOA has him fifth and his scoring is 2.9% below the league average. The schedule has been kind, which fits the lucky label. The 75% playoff odds jump to 95% with a win over Manager-Less and fall to 55% with a loss.",
+    "Scott": "Scott is 5-4 with FVOA ranking the team first, so the standings are the part that's wrong. The schedule has been unlucky, and 361.6 bench points left on the season is the most in the league, which is the one problem Scott controls. Playoff odds jumped 30 points to 75%, and beating Jibreel as a 10-point favorite makes it 92%.",
+    "Marty": "Marty has climbed 19 points to 59% playoff odds, but the record is better than the scoring, which sits 2.9% below the league average. The schedule has been the toughest in the league, yet the luck label still says lucky. A win over Andrew as a 5.5-point favorite means 83%, and a loss means 30%.",
+    "Andrew": "Andrew is 4-5 with 5% playoff odds, and FVOA ranks the team last, so the record is flattering. Last week Hou put up 41.4 points on the bench while KC sat in the lineup, part of 40.7 points left behind. Beating Marty only gets the odds to 13%, and a loss ends them at 0%.",
+    "Michael": "Michael is 3-6 despite scoring 2.6% above the league average, and the unlucky label fits. FVOA ranks the team third, four spots above its place in the standings. Playoff odds fell 28 points to 22%. Beating James in a coin flip moves them to 43%, and a loss leaves 5%.",
+    "Bobby": "Bobby is 3-6 with 9% playoff odds, and the schedule has been unlucky. Points scored have been 3.1% below average, and opponents have scored the most against Bobby of any team. A win over Heitz as a 3-point favorite lifts the odds to 19%. A loss leaves them at 1%.",
+    "Manager-Less": "Manager-Less is 2-7 even though it ranks third in points scored and fourth in FVOA, which is as underrated as it gets. The unlucky label fits, since 98% of random schedules would have treated this team better. Playoff odds are 8%, rising to 21% with a win over Todd and falling to 0% with a loss.",
+    "Heitz": "Heitz is 2-7 with 1% playoff odds, last in points scored, and the 41.1 bench points left last week are the most in the league. SF scored 21.7 on the bench while Ten sat in the lineup and scored 0. A win over Bobby leaves the odds at 1%, and a loss drops them to 0%."
+  },
+  "review_flags": []
+}

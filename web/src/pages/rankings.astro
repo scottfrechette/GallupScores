@@ -27,7 +27,9 @@ const sorts = [
   { key: "sor", label: "SOR" },
   { key: "sos", label: "SOS" },
 ];
-const n = (v: number) => Math.round(v).toLocaleString("en-US");
+
+// No thousands separators: the comma costs a character in every cell and the columns are tight
+const pts = (v: number) => String(Math.round(v));
 ---
 
 <Base title={`Rankings · ${league.league_name}`}>
@@ -50,19 +52,20 @@ const n = (v: number) => Math.round(v).toLocaleString("en-US");
     }
   </div>
 
+  <!-- Cells never wrap, and the # and Team columns stay pinned if the table has to scroll sideways -->
   <div class="overflow-x-auto rounded-2xl bg-white shadow-sm dark:bg-slate-900">
-    <table class="w-full text-sm tabular-nums">
-      <thead class="text-left text-xs text-slate-500 dark:text-slate-400">
-        <tr>
-          <th class="px-3 py-3">#</th>
-          <th class="py-3">Team</th>
-          <th class="py-3">Rec</th>
-          <th class="py-3 text-right">FVOA</th>
-          <th class="py-3 text-right">PF</th>
-          <th class="py-3 text-right">PA</th>
-          <th class="py-3 text-right">Yahoo</th>
-          <th class="py-3 pl-2 text-right">SOR</th>
-          <th class="px-3 py-3 text-right">SOS</th>
+    <table class="w-full text-xs whitespace-nowrap tabular-nums">
+      <thead class="text-left text-slate-500 dark:text-slate-400">
+        <tr class="bg-white dark:bg-slate-900">
+          <th class="sticky left-0 z-10 w-8 min-w-8 bg-inherit py-3 pr-1 pl-3">#</th>
+          <th class="sticky left-8 z-10 bg-inherit px-1.5 py-3">Team</th>
+          <th class="px-1.5 py-3">Rec</th>
+          <th class="px-1.5 py-3 text-right">FVOA</th>
+          <th class="px-1.5 py-3 text-right">PF</th>
+          <th class="px-1.5 py-3 text-right">PA</th>
+          <th class="px-1.5 py-3 text-right">Yahoo</th>
+          <th class="px-1.5 py-3 text-right">SOR</th>
+          <th class="py-3 pr-3 pl-1.5 text-right">SOS</th>
         </tr>
       </thead>
       <tbody id="rows">
@@ -76,17 +79,17 @@ const n = (v: number) => Math.round(v).toLocaleString("en-US");
               data-pf={-r.PF}
               data-pa={-r.PA}
               data-team={r.Team}
-              class="border-t border-slate-100 data-[mine=true]:bg-indigo-50 dark:border-slate-800 dark:data-[mine=true]:bg-indigo-950/40"
+              class="border-t border-slate-100 bg-white data-[mine=true]:bg-indigo-50 dark:border-slate-800 dark:bg-slate-900 dark:data-[mine=true]:bg-indigo-950/40"
             >
-              <td class="pos px-3 py-3 text-slate-400">{i + 1}</td>
-              <td class="py-3 font-medium">{r.Team}</td>
-              <td class="py-3">{r.Record}</td>
-              <td class="py-3 text-right">{r.FVOA.toFixed(2)}</td>
-              <td class="py-3 text-right">{n(r.PF)}</td>
-              <td class="py-3 text-right">{n(r.PA)}</td>
-              <td class="py-3 text-right">{r["Yahoo Rank"]}</td>
-              <td class="py-3 pl-2 text-right">{r["SOR Rank"]}</td>
-              <td class="px-3 py-3 text-right">{r["SOS Rank"]}</td>
+              <td class="pos sticky left-0 z-10 w-8 min-w-8 bg-inherit py-3 pr-1 pl-3 text-slate-400">{i + 1}</td>
+              <td class="sticky left-8 z-10 bg-inherit px-1.5 py-3 text-sm font-medium">{r.Team}</td>
+              <td class="px-1.5 py-3">{r.Record}</td>
+              <td class="px-1.5 py-3 text-right">{r.FVOA.toFixed(2)}</td>
+              <td class="px-1.5 py-3 text-right">{pts(r.PF)}</td>
+              <td class="px-1.5 py-3 text-right">{pts(r.PA)}</td>
+              <td class="px-1.5 py-3 text-right">{r["Yahoo Rank"]}</td>
+              <td class="px-1.5 py-3 text-right">{r["SOR Rank"]}</td>
+              <td class="py-3 pr-3 pl-1.5 text-right">{r["SOS Rank"]}</td>
             </tr>
           ))
         }
@@ -94,11 +97,30 @@ const n = (v: number) => Math.round(v).toLocaleString("en-US");
     </table>
   </div>
 
-  <p class="mt-3 text-xs leading-relaxed text-slate-500 dark:text-slate-400">
-    FVOA is a team's expected margin against a historically average team. SOR (strength of record)
-    is how impressive the record is given the schedule played. PF is points for and PA is points
-    against. SOS is strength of schedule, where 1 is the hardest.
-  </p>
+  <div class="mt-3 space-y-1 text-xs leading-relaxed text-slate-500 dark:text-slate-400">
+    <p>
+      <strong class="text-slate-700 dark:text-slate-300"><em>FVOA</em></strong> is a team's expected
+      margin against a historically average team.
+    </p>
+    <p>
+      <strong class="text-slate-700 dark:text-slate-300"><em>PF</em></strong> is points for.
+    </p>
+    <p>
+      <strong class="text-slate-700 dark:text-slate-300"><em>PA</em></strong> is points against.
+    </p>
+    <p>
+      <strong class="text-slate-700 dark:text-slate-300"><em>Yahoo</em></strong> is the team's place
+      in the Yahoo standings.
+    </p>
+    <p>
+      <strong class="text-slate-700 dark:text-slate-300"><em>SOR</em></strong> (strength of record)
+      is how impressive the record is given the schedule played.
+    </p>
+    <p>
+      <strong class="text-slate-700 dark:text-slate-300"><em>SOS</em></strong> is strength of
+      schedule, where 1 is the hardest.
+    </p>
+  </div>
 </Base>
 
 <script>

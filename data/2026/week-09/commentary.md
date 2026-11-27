@@ -1,0 +1,12 @@
+## Week 9 draft (weekly mode)
+
+- Jibreel is 8-1 and in 1st place, but FVOA has him as the 9th strongest team in the league. He's scoring 5% below the league average, and the schedule luck numbers say he's been lucky. That's why he's only ~61% to make playoffs with a record that good. It drops to ~37% if he loses to Scott this week.
+- Scott is the strongest team in FVOA and has the best strength of record, but he's only 5-4 and in 4th. His playoff odds jumped about 30 points to ~75%, the biggest swing in the league. He's laying 10 points to Jibreel at ~59%. He also leads the league with 362 points left on his bench this season, so the only thing between him and a cleaner record is his own lineup setting.
+- Michael and Manager-Less are the model's favorite hard-luck cases. Michael is the 3rd strongest team but 3-6 and in 7th, and his playoff odds fell about 28 points to ~22%. Manager-Less is the 4th strongest team, scoring 5% above average, and sits at 2-7 with ~8% odds. Both have unlucky schedules, which at this point is the nicest thing anyone can say about either of them.
+- Heitz left 41 points on the bench this week, the most in the league. SF (RB) put up 21.7 on the bench while Ten scored 0 in his lineup. He's 2-7, scoring almost 10% below average, and has ~60% odds of finishing last, so the bench wasn't exactly the main problem.
+- James is the 2nd strongest team and scoring almost 16% above average, so he's the one team in the top 4 whose record and underlying numbers fully agree. He's ~84% to make playoffs and ~32% to take the 1st seed. Next week he's a pure coin flip against Michael, which FVOA rates as the best matchup of the week.
+- <u><strong>Commish Corner</strong></u> - Commish is the weakest team in FVOA and scoring 8% below average, yet he sits 6th at 4-5 with the 2nd best strength of record. That's what a lucky schedule looks like, but his playoff odds are only ~5%. He has to beat Marty this week (~45% by FVOA) or the odds hit 0%, and he left 40.7 points on the bench this week, including 41.4 from Hou at QB over KC's 16.5.
+
+### Awards
+
+_Merge to publish. Edit commentary.json in this PR first if anything needs fixing._

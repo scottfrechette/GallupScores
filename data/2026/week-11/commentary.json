@@ -1,0 +1,11 @@
+{
+  "season": 2026,
+  "week": 11,
+  "mode": "weekly",
+  "model": "claude-sonnet-5-5",
+  "generated_at": "2026-11-24T21:04:39Z",
+  "bullets": ["Scott has the strongest team in the league by a mile (FVOA of +11.0, next best is James at +4.3) but sits in 3rd at 7-4. He has the hardest schedule so far, the best strength of record, and ~98% odds to make playoffs, and FVOA calls him the unluckiest team in the league.", "Jibreel is in 1st at 9-2 with only the 5th strongest team and scoring just 0.1% above the league average. FVOA says he's lucky, and about 94% of random schedules would have left him ranked lower, but ~97% to make playoffs and ~56% to finish 1st means the standings are going to keep pretending he's the best team.", "Michael is the biggest disagreement between FVOA and the standings: 3rd strongest team, 8th place at 3-8. He's scoring 2.2% above average and FVOA calls his schedule unlucky, but the playoff odds are basically 0%, so it's a very strong team with a very dead season.", "Marty and Todd are both 7-4 despite scoring below average (2.0% and 4.7% under), which is how FVOA ends up calling both of them overrated. The good news is it's all on the line next week: Marty is ~94% to make playoffs with a win over James and ~41% with a loss, and Todd is ~73% with a win over Jibreel and ~28% with a loss.", "Manager-Less left 58.4 points on the bench this week, most in the league, including 40.9 from Dal at QB. For a 2-9 team with ~49% odds of finishing last, that's leaving shit on the table, and FVOA says 97% of random schedules would have treated him better."],
+  "commish_corner": "Commish is 5-6 and in 6th place with the 2nd best strength of record, but FVOA has him as the 10th strongest team and still scoring 10% below the league average, so he's been lucky. His ~3% playoff odds jump to ~11% with a win, but that win has to come against Scott, who's an 18.5-point favorite with a 66% win probability. Commish has a 34% shot, which is better than nothing.",
+  "review_flags": [],
+  "awards": []
+}
